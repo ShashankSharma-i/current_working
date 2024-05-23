@@ -1,8 +1,7 @@
 package com.clientRackr.api.wrapper;
 
-import com.clientRackr.api.validators.ValidEmail;
-import com.clientRackr.api.validators.ValidPassword;
-import jakarta.validation.constraints.NotNull;
+import com.clientRackr.api.IValidation.MailValidator;
+import com.clientRackr.api.IValidation.ValidPassword;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class LogInRequest {
-    @ValidEmail
+    @MailValidator
     private String email;
 
     @ValidPassword

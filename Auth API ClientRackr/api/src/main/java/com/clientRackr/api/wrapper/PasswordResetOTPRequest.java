@@ -1,6 +1,6 @@
 package com.clientRackr.api.wrapper;
 
-import com.clientRackr.api.validators.ValidEmail;
+import com.clientRackr.api.IValidation.MailValidator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PasswordResetLinkRequest {
+public class PasswordResetOTPRequest {
 
-    @ValidEmail
+    @MailValidator
     private String email;
 }

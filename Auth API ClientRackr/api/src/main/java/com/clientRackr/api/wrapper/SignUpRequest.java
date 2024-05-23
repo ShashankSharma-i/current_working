@@ -1,29 +1,25 @@
 package com.clientRackr.api.wrapper;
 
-import com.clientRackr.api.validators.ValidEmail;
-import com.clientRackr.api.validators.ValidFirstName;
-import com.clientRackr.api.validators.ValidLastName;
-import com.clientRackr.api.validators.ValidPassword;
+import com.clientRackr.api.IValidation.MailValidator;
+import com.clientRackr.api.IValidation.ValidFirstName;
+import com.clientRackr.api.IValidation.ValidLastName;
+import com.clientRackr.api.IValidation.ValidPassword;
 import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignUpRequest {
-    @ValidEmail
-    @Column(unique = true)
-    @Basic
-    private String email;
+public class SignUpRequest implements Serializable {
 
-    @ValidPassword
-    @Basic
-    private String password;
+    @MailValidator
+    private String email;
 
     @ValidFirstName
     @Basic
@@ -33,6 +29,8 @@ public class SignUpRequest {
     @Basic
     private String lastName;
 
+    @ValidPassword
     @Basic
-    private Integer OTP;
+    private String password;
+
 }

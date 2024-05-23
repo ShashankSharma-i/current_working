@@ -20,7 +20,7 @@ public class OTPServiceImpl implements OTPService {
 
     public String generateOtp() {
         Random random = new Random();
-        return String.format("%06d", random.nextInt(999999));
+        return String.format("%06d", random.nextInt(100000,999999));
     }
 
     public OTP createOtp(String email) {

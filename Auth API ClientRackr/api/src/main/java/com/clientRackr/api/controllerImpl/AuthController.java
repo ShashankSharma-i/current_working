@@ -2,22 +2,29 @@ package com.clientRackr.api.controllerImpl;
 
 import com.clientRackr.api.IServices.AuthService;
 import com.clientRackr.api.auth.JwtUtil;
-import com.clientRackr.api.entity.OTP;
 import com.clientRackr.api.repository.UserRepository;
 import com.clientRackr.api.wrapper.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
-@Controller
+
+
+@RestController
 @RequestMapping("/rest/auth")
+@Slf4j
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -34,32 +41,31 @@ public class AuthController {
     }
 
 
-    @ResponseBody
-    @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public ResponseEntity signUp(@RequestBody SignUpRequest signUpRequest) {
-
+    @PostMapping(value = "/signUp")
+    public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest signUpRequest) {
         try {
-            ResponseEntity response = authService.registerUser(signUpRequest);
-            if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                return new ResponseEntity("User already exist", HttpStatus.BAD_REQUEST);
-            } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                return new ResponseEntity("Invalid OTP", HttpStatus.UNAUTHORIZED);
+            ResponseEntity<SignUpResponse> response = authService.registerUser(signUpRequest);
+
+            if (response.getStatusCode() == HttpStatus.BAD_REQUEST || response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                return response;
             }
 
-            SignUpResponse signUpResponse = new SignUpResponse(signUpRequest.getEmail(), "User created successfully");
-            return ResponseEntity.ok(signUpResponse);
-
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                SignUpResponse signUpResponse = response.getBody();
+                return ResponseEntity.ok(signUpResponse);
+            }
+            return response;
         } catch (BadCredentialsException e) {
-            ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, "Invalid username or password");
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, "Invalid username or password");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         } catch (Exception e) {
-            ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LogInResponse> login(@RequestBody LogInRequest logInRequest, HttpServletRequest request) {
+    public ResponseEntity<LogInResponse> login(@RequestBody @Validated LogInRequest logInRequest, HttpServletRequest request) {
         try {
             if (logInRequest != null) {
 //                String token = jwtUtil.createToken(signUpRequest); // only for response
@@ -71,28 +77,59 @@ public class AuthController {
         return null;
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/resetPassword")
     public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest, HttpServletRequest request) {
         return authService.resetPassword(resetPasswordRequest, request);
     }
 
-    @PostMapping("/save-otp")
-    public ResponseEntity<OTP> otpVerification(@RequestParam String email) {
-        OTP response = authService.saveOtp(email);
-        if (response != null) {
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @PostMapping("/verifyOTP")
+    public ResponseEntity<OTPVerificationResponse> verifyOTP(@RequestParam Integer OTP, @RequestParam String email) {
+        try {
+            if (email != null && OTP != null)
+                return authService.verifyOTP(email, OTP);
+        } catch (Exception e) {
+            logger.error(e.toString());
         }
+        return null;
     }
 
-    @PostMapping("/PasswordResetLink")
-    public ResponseEntity<String> PasswordResetLink(@RequestBody  PasswordResetLinkRequest passwordResetLinkRequest) {
+
+    /*    @PostMapping("/save-otp")
+    public ResponseEntity<?> otpVerification(@RequestParam String email) {
+        logger.info("Entering otpVerification method with email: {}", email);
+
+        try {
+            OTP response = authService.saveOtp(email);
+
+            if (response != null) {
+                logger.info("OTP generated and sent to email: {}", email);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                logger.warn("User already exists with email: {}", email);
+                ErrorResponse errorResponse = new ErrorResponse("User already exists", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            logger.error("An error occurred while generating OTP for email: {}", email, e);
+            ErrorResponse errorResponse = new ErrorResponse("An error occurred while generating OTP", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }*/
+
+
+    /*@PostMapping("/PasswordResetLink")
+    public ResponseEntity<String> PasswordResetLink(@RequestBody PasswordResetLinkRequest passwordResetLinkRequest) {
         return authService.PasswordResetLink(passwordResetLinkRequest);
-    }
+    }*/
+
+    /*@PostMapping("/PasswordResetOTP")
+    public ResponseEntity<ResetPasswordResponse> PasswordResetOTP(@RequestBody PasswordResetOTPRequest passwordResetOTPRequest) {
+        return authService.PasswordResetOTP(passwordResetOTPRequest);
+    }*/
+
 
     @PostMapping("/resendOTP")
-    public ResponseEntity<String> resendOTP(@RequestParam String email)     {
+    public ResponseEntity<String> resendOTP(@RequestParam String email) {
         try {
             if (email != null || !email.contains(""))
                 return authService.resendOTP(email);

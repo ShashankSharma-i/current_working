@@ -1,15 +1,13 @@
 package com.clientRackr.api.entity;
 
-import com.clientRackr.api.validators.ValidEmail;
-import com.clientRackr.api.validators.ValidFirstName;
-import com.clientRackr.api.validators.ValidPassword;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.clientRackr.api.IValidation.MailValidator;
+import com.clientRackr.api.IValidation.ValidFirstName;
+import com.clientRackr.api.IValidation.ValidLastName;
+import com.clientRackr.api.IValidation.ValidPassword;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -24,8 +22,9 @@ public class User {
     private Long id;
 
     @Column(name = "Email", unique = true)
-    @Basic
-    @ValidEmail
+//    @Basic
+//    @Email
+    @MailValidator
     private String email;
 
     @Column(name = "Password")
@@ -40,7 +39,11 @@ public class User {
 
     @Column(name = "Last_Name")
     @Basic
+    @ValidLastName
     private String lastName;
+
+    @Column(name = "Is_Verified")
+    private Boolean isVerified;
 
     /*@OneToOne
     @JoinColumn(name = "role_id")

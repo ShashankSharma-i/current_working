@@ -1,7 +1,6 @@
 package com.clientRackr.api.entity;
 
-import com.clientRackr.api.validators.ValidEmail;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.clientRackr.api.IValidation.MailValidator;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +25,7 @@ public class OTP {
 
     @Column(name = "Email", unique = true)
     @Basic
-    @ValidEmail
+    @MailValidator
     private String email;
 
     @Basic

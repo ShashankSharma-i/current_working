@@ -14,8 +14,9 @@ public interface AuthService {
 
     OTP saveOtp(String email);
 
-    ResponseEntity<String> PasswordResetLink(PasswordResetLinkRequest passwordResetLinkRequest);
-
     ResponseEntity<String> resendOTP(String email);
 
+    ResponseEntity<OTPVerificationResponse> verifyOTP(String email, Integer OTP);
+
+    //ResponseEntity<ResetPasswordResponse> PasswordResetOTP(PasswordResetOTPRequest passwordResetOTPRequest);
 }

@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/rest/auth/login").permitAll()
                         .requestMatchers("/rest/auth/save-otp/**").permitAll()
                         .requestMatchers("/rest/auth/resendOTP").permitAll()
+                        .requestMatchers("/rest/auth/otpVerification").permitAll()
                         .requestMatchers("/rest/createSuperAdmin").permitAll() // Permit access without authentication
                         .anyRequest().authenticated() // All other requests require authentication
                 )

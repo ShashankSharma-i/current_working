@@ -1,7 +1,7 @@
 package com.clientRackr.api.controllerImpl;
 
 import com.clientRackr.api.auth.JwtUtil;
-import com.clientRackr.api.wrapper.ErrorRes;
+import com.clientRackr.api.wrapper.ErrorResponse;
 import com.clientRackr.api.wrapper.SignUpRequest;
 import com.clientRackr.api.wrapper.TokenResponse;
 import org.springframework.http.HttpStatus;
@@ -43,10 +43,10 @@ public class TokenGenerationController {
             return ResponseEntity.ok(tokenResponse);
 
         } catch (BadCredentialsException e) {
-            ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, "Invalid username or password");
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, "Invalid username or password");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         } catch (Exception e) {
-            ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
